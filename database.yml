@@ -1,10 +1,10 @@
 development:
   dialect: "mysql"
   database: "tweaser_development"
-  host: "localhost"
-  port: "3306"
+  host: "127.0.0.1"
+  port: "13306"
   user: "root"
-  password: "root"
+  password: "secret"
   encoding: "utf8mb4_general_ci"
 
 test:
