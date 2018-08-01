@@ -1,0 +1,5 @@
+create_table("response_answers") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("answer_id", "uuid", {})
+	t.Column("response_id", "uuid", {})
+}

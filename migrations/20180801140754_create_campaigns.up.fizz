@@ -1,0 +1,7 @@
+create_table("campaigns") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("name", "string", {})
+	t.Column("start_date", "timestamp", {})
+	t.Column("end_date", "timestamp", {})
+	t.Column("enabled", "bool", {"default":false})
+}
