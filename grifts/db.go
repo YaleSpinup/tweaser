@@ -35,7 +35,7 @@ func seedCampaigns(c *grift.Context, tx *pop.Connection) error {
 		return err
 	}
 
-	nfQuestions := models.Question{Text: "What is the next feature you would like to see implemented?", CampaignID: nextFeature.ID}
+	nfQuestions := models.Question{Text: "What is the next feature you would like to see implemented?", CampaignID: nextFeature.ID, Enabled: true}
 	_, err = tx.ValidateAndSave(&nfQuestions)
 	if err != nil {
 		return err
@@ -47,7 +47,7 @@ func seedCampaigns(c *grift.Context, tx *pop.Connection) error {
 		return err
 	}
 
-	lbQuestions := models.Question{Text: "What is your favorite current feature?", CampaignID: likeBest.ID}
+	lbQuestions := models.Question{Text: "What is your favorite current feature?", CampaignID: likeBest.ID, Enabled: true}
 	_, err = tx.ValidateAndSave(&lbQuestions)
 	if err != nil {
 		return err
@@ -59,7 +59,7 @@ func seedCampaigns(c *grift.Context, tx *pop.Connection) error {
 		return err
 	}
 
-	fdQuestions := models.Question{Text: "Who is your favorite developer?", CampaignID: favoriteDev.ID}
+	fdQuestions := models.Question{Text: "Who is your favorite developer?", CampaignID: favoriteDev.ID, Enabled: true}
 	_, err = tx.ValidateAndSave(&fdQuestions)
 	if err != nil {
 		return err
@@ -71,7 +71,7 @@ func seedCampaigns(c *grift.Context, tx *pop.Connection) error {
 		return err
 	}
 
-	dcQuestions := models.Question{Text: "How do you feel about disabled campaigns?", CampaignID: disabledCampaign.ID}
+	dcQuestions := models.Question{Text: "How do you feel about disabled campaigns?", CampaignID: disabledCampaign.ID, Enabled: true}
 	_, err = tx.ValidateAndSave(&dcQuestions)
 	if err != nil {
 		return err
@@ -82,13 +82,21 @@ func seedCampaigns(c *grift.Context, tx *pop.Connection) error {
 	if err != nil {
 		return err
 	}
-	mqQuestions1 := models.Question{Text: "How do you feel about too many questions?", CampaignID: multiQuestion.ID}
+
+	mqQuestions1 := models.Question{Text: "How do you feel about too many questions?", CampaignID: multiQuestion.ID, Enabled: true}
 	_, err = tx.ValidateAndSave(&mqQuestions1)
 	if err != nil {
 		return err
 	}
-	mqQuestions2 := models.Question{Text: "How do you feel about way too many questions?", CampaignID: multiQuestion.ID}
+
+	mqQuestions2 := models.Question{Text: "How do you feel about way too many questions?", CampaignID: multiQuestion.ID, Enabled: true}
 	_, err = tx.ValidateAndSave(&mqQuestions2)
+	if err != nil {
+		return err
+	}
+
+	mqQuestions3 := models.Question{Text: "How do you feel about way way too many questions?", CampaignID: multiQuestion.ID, Enabled: false}
+	_, err = tx.ValidateAndSave(&mqQuestions3)
 	if err != nil {
 		return err
 	}

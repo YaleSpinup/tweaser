@@ -45,6 +45,7 @@ CREATE TABLE `questions` (
   `id` char(36) NOT NULL,
   `text` text NOT NULL,
   `campaign_id` char(36) DEFAULT NULL,
+  `enabled` tinyint(1) NOT NULL DEFAULT '0',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
@@ -73,4 +74,4 @@ CREATE TABLE `schema_migration` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-01 11:06:07
+-- Dump completed on 2018-08-01 11:18:08

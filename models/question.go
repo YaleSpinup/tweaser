@@ -17,6 +17,7 @@ type Question struct {
 	Text       string    `json:"text" db:"text"`
 	Campaign   Campaign  `belongs_to:"campaign" json:"-"`
 	CampaignID uuid.UUID `json:"campaign_id" db:"campaign_id"`
+	Enabled    bool      `json:"enabled" db:"enabled"`
 }
 
 // String is not required by pop and may be deleted
