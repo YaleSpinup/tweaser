@@ -46,6 +46,11 @@ func App() *buffalo.App {
 		app.Use(middleware.PopTransaction(models.DB))
 		api := app.Group("/v1/tweaser")
 		api.GET("/ping", PingPong)
+		api.GET("/campaigns", CampaignsList)
+		api.GET("/campaigns/{campaign_id}", CampaignsGet)
+		api.GET("/campaigns/{campaign_id}/questions", CampaignsGetQuestions)
+		api.GET("/questions", QuestionsList)
+		api.GET("/questions/{question_id}", QuestionsGet)
 	}
 
 	return app

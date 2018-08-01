@@ -18,12 +18,6 @@ var _ = grift.Namespace("db", func() {
 			return err
 		}
 
-		err = truncate(c, tx)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-
 		err = seedCampaigns(c, tx)
 		if err != nil {
 			log.Println(err)
@@ -33,16 +27,6 @@ var _ = grift.Namespace("db", func() {
 	})
 
 })
-
-func truncate(c *grift.Context, tx *pop.Connection) error {
-	err := tx.TruncateAll()
-	if err != nil {
-		return err
-	}
-
-	log.Println("Truncated all tables")
-	return nil
-}
 
 func seedCampaigns(c *grift.Context, tx *pop.Connection) error {
 	nextFeature := models.Campaign{Name: "Determine Feature Priority", StartDate: time.Now(), EndDate: time.Now().Add(72 * time.Hour), Enabled: true}
