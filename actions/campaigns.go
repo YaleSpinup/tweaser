@@ -8,7 +8,7 @@ import (
 )
 
 // CampaignsList gets a paginated list of campaigns.
-// /v1/tweaser/campaigns
+// GET /v1/tweaser/campaigns
 func CampaignsList(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -34,7 +34,7 @@ func CampaignsList(c buffalo.Context) error {
 }
 
 // CampaignsGet gets a Campaign by ID.
-// /v1/tweaser/campaigns/{campaign_id}
+// GET /v1/tweaser/campaigns/{campaign_id}
 func CampaignsGet(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -54,7 +54,7 @@ func CampaignsGet(c buffalo.Context) error {
 }
 
 // CampaignsGetQuestions gets the questions for a given Campaign.
-// /v1/tweaser/campaigns/{campaign_id}/questions
+// GET /v1/tweaser/campaigns/{campaign_id}/questions
 func CampaignsGetQuestions(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -71,4 +71,67 @@ func CampaignsGetQuestions(c buffalo.Context) error {
 	}
 
 	return c.Render(200, r.JSON(campaign.Questions))
+}
+
+// CampaignsCreate creates a new Campaign in the database
+// POST /v1/tweaser/campaigns
+func CampaignsCreate(c buffalo.Context) error {
+	// Allocate an empty Campaign
+	campaign := &models.Campaign{}
+
+	// bind the request body to the new campaign
+	if err := c.Bind(campaign); err != nil {
+		return errors.WithStack(err)
+	}
+
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Validate the posted data and save it to the database
+	verrs, err := tx.ValidateAndCreate(campaign)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if verrs.HasAny() {
+		return c.Render(422, r.JSON(verrs))
+	}
+
+	return c.Render(201, r.JSON(campaign))
+}
+
+// CampaignsUpdate changes a Campaign in the DB.
+// PUT /v1/tweaser/campaigns/{campaign_id}
+func CampaignsUpdate(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Campaign
+	campaign := &models.Campaign{}
+
+	if err := tx.Find(campaign, c.Param("campaign_id")); err != nil {
+		return c.Error(404, err)
+	}
+
+	// Bind Campaign to request body
+	if err := c.Bind(campaign); err != nil {
+		return errors.WithStack(err)
+	}
+
+	verrs, err := tx.ValidateAndUpdate(campaign)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	if verrs.HasAny() {
+		return c.Render(422, r.JSON(verrs))
+	}
+
+	return c.Render(200, r.JSON(campaign))
 }

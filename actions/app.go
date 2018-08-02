@@ -47,10 +47,20 @@ func App() *buffalo.App {
 		api := app.Group("/v1/tweaser")
 		api.GET("/ping", PingPong)
 		api.GET("/campaigns", CampaignsList)
+		api.POST("/campaigns", CampaignsCreate)
+		api.PUT("/campaigns/{campaign_id}", CampaignsUpdate)
 		api.GET("/campaigns/{campaign_id}", CampaignsGet)
 		api.GET("/campaigns/{campaign_id}/questions", CampaignsGetQuestions)
+
 		api.GET("/questions", QuestionsList)
 		api.GET("/questions/{question_id}", QuestionsGet)
+		api.POST("/questions", QuestionsCreate)
+		api.PUT("/questions/{question_id}", QuestionsUpdate)
+
+		api.GET("/answers", AnswersList)
+		api.GET("/answers/{answer_id}", AnswersGet)
+		api.POST("/answers", AnswersCreate)
+		api.PUT("/answers/{answer_id}", AnswersUpdate)
 	}
 
 	return app

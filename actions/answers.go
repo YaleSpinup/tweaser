@@ -7,59 +7,57 @@ import (
 	"github.com/pkg/errors"
 )
 
-// QuestionsList returns the list of questions.
-// /v1/tweaser/questions
-func QuestionsList(c buffalo.Context) error {
+// AnswersList gets a paginated list of answers.
+func AnswersList(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	questions := &models.Questions{}
+	answers := &models.Answers{}
 
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
 	q := tx.PaginateFromParams(c.Params())
 
-	// Retrieve all Questions from the DB
-	if err := q.All(questions); err != nil {
+	// Retrieve all Answers from the DB
+	if err := q.All(answers); err != nil {
 		return errors.WithStack(err)
 	}
 
 	// Add the paginator to the context so it can be used in the template.
 	c.Set("pagination", q.Paginator)
 
-	return c.Render(200, r.JSON(questions))
+	return c.Render(200, r.JSON(answers))
 }
 
-// QuestionsGet gets a question by ID.
-// /v1/tweaser/questions/{question_id}
-func QuestionsGet(c buffalo.Context) error {
+// AnswersGet gets an answer by ID.
+func AnswersGet(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	// Allocate an empty Question
-	question := &models.Question{}
+	// Allocate an empty Answer
+	answer := &models.Answer{}
 
-	// To find the Question the parameter question_id is used.
-	if err := tx.Eager("Answers").Find(question, c.Param("question_id")); err != nil {
+	// To find the Answer the parameter answer_id is used.
+	if err := tx.Find(answer, c.Param("answer_id")); err != nil {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.JSON(question))
+	return c.Render(200, r.JSON(answer))
 }
 
-// QuestionsCreate creates an question.
-func QuestionsCreate(c buffalo.Context) error {
-	// Allocate an empty Question
-	question := &models.Question{}
+// AnswersCreate creates an answer.
+func AnswersCreate(c buffalo.Context) error {
+	// Allocate an empty Answer
+	answer := &models.Answer{}
 
-	// bind the request body to the new question
-	if err := c.Bind(question); err != nil {
+	// bind the request body to the new answer
+	if err := c.Bind(answer); err != nil {
 		return errors.WithStack(err)
 	}
 
@@ -70,7 +68,7 @@ func QuestionsCreate(c buffalo.Context) error {
 	}
 
 	// Validate the posted data and save it to the database
-	verrs, err := tx.ValidateAndCreate(question)
+	verrs, err := tx.ValidateAndCreate(answer)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -79,30 +77,30 @@ func QuestionsCreate(c buffalo.Context) error {
 		return c.Render(422, r.JSON(verrs))
 	}
 
-	return c.Render(201, r.JSON(question))
+	return c.Render(201, r.JSON(answer))
 }
 
-// QuestionsUpdate updates an question.
-func QuestionsUpdate(c buffalo.Context) error {
+// AnswersUpdate updates an answer.
+func AnswersUpdate(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
 	if !ok {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	// Allocate an empty Question
-	question := &models.Question{}
+	// Allocate an empty Answer
+	answer := &models.Answer{}
 
-	if err := tx.Find(question, c.Param("question_id")); err != nil {
+	if err := tx.Find(answer, c.Param("answer_id")); err != nil {
 		return c.Error(404, err)
 	}
 
-	// bind the request body to the question
-	if err := c.Bind(question); err != nil {
+	// bind the request body to the answer
+	if err := c.Bind(answer); err != nil {
 		return errors.WithStack(err)
 	}
 
-	verrs, err := tx.ValidateAndUpdate(question)
+	verrs, err := tx.ValidateAndUpdate(answer)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -111,5 +109,5 @@ func QuestionsUpdate(c buffalo.Context) error {
 		return c.Render(422, r.JSON(verrs))
 	}
 
-	return c.Render(200, r.JSON(question))
+	return c.Render(200, r.JSON(answer))
 }

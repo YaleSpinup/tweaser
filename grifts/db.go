@@ -6,6 +6,7 @@ import (
 
 	"git.yale.edu/spinup/tweaser/models"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 	"github.com/markbates/grift/grift"
 )
 
@@ -13,12 +14,7 @@ var _ = grift.Namespace("db", func() {
 
 	grift.Desc("seed", "Seeds a database")
 	grift.Add("seed", func(c *grift.Context) error {
-		tx, err := pop.Connect("development")
-		if err != nil {
-			return err
-		}
-
-		err = seedCampaigns(c, tx)
+		err := seedCampaigns(c)
 		if err != nil {
 			log.Println(err)
 		}
@@ -28,79 +24,135 @@ var _ = grift.Namespace("db", func() {
 
 })
 
-func seedCampaigns(c *grift.Context, tx *pop.Connection) error {
-	nextFeature := models.Campaign{Name: "Determine Feature Priority", StartDate: time.Now(), EndDate: time.Now().Add(72 * time.Hour), Enabled: true}
-	_, err := tx.ValidateAndSave(&nextFeature)
+func seedCampaigns(c *grift.Context) error {
+	nf, err := newCampaign("Determine Feature Priority", time.Now(), time.Now().Add(72*time.Hour), true)
 	if err != nil {
 		return err
 	}
 
-	nfQuestions := models.Question{Text: "What is the next feature you would like to see implemented?", CampaignID: nextFeature.ID, Enabled: true}
-	_, err = tx.ValidateAndSave(&nfQuestions)
+	nfq, err := newQuestion("What is the next feature you would like to see implemented?", nf.ID, true)
 	if err != nil {
 		return err
 	}
 
-	likeBest := models.Campaign{Name: "Favorite Feature", StartDate: time.Now().Add(72 * time.Hour), EndDate: time.Now().Add(144 * time.Hour), Enabled: true}
-	_, err = tx.ValidateAndSave(&likeBest)
+	if _, err = newAnswer("container service", nfq.ID); err != nil {
+		return err
+	}
+	if _, err = newAnswer("standalone databases", nfq.ID); err != nil {
+		return err
+	}
+	if _, err = newAnswer("serverless computing", nfq.ID); err != nil {
+		return err
+	}
+
+	lb, err := newCampaign("Favorite Feature", time.Now().Add(72*time.Hour), time.Now().Add(144*time.Hour), true)
 	if err != nil {
 		return err
 	}
 
-	lbQuestions := models.Question{Text: "What is your favorite current feature?", CampaignID: likeBest.ID, Enabled: true}
-	_, err = tx.ValidateAndSave(&lbQuestions)
+	lbq, err := newQuestion("What is your favorite current feature?", lb.ID, true)
 	if err != nil {
 		return err
 	}
 
-	favoriteDev := models.Campaign{Name: "Favorite Developer", StartDate: time.Now().Add(-72 * time.Hour), EndDate: time.Now(), Enabled: true}
-	_, err = tx.ValidateAndSave(&favoriteDev)
+	if _, err = newAnswer("servers for regulated data", lbq.ID); err != nil {
+		return err
+	}
+	if _, err = newAnswer("tryit", lbq.ID); err != nil {
+		return err
+	}
+	if _, err = newAnswer("windows servers", lbq.ID); err != nil {
+		return err
+	}
+	if _, err = newAnswer("external requests", lbq.ID); err != nil {
+		return err
+	}
+
+	fd, err := newCampaign("Favorite Developer", time.Now().Add(-72*time.Hour), time.Now(), true)
 	if err != nil {
 		return err
 	}
 
-	fdQuestions := models.Question{Text: "Who is your favorite developer?", CampaignID: favoriteDev.ID, Enabled: true}
-	_, err = tx.ValidateAndSave(&fdQuestions)
+	_, err = newQuestion("Who is your favorite developer?", fd.ID, true)
 	if err != nil {
 		return err
 	}
 
-	disabledCampaign := models.Campaign{Name: "Disabled Campaign", StartDate: time.Now().Add(-72 * time.Hour), EndDate: time.Now(), Enabled: false}
-	_, err = tx.ValidateAndSave(&disabledCampaign)
+	dc, err := newCampaign("Disabled Campaign", time.Now().Add(-72*time.Hour), time.Now(), false)
 	if err != nil {
 		return err
 	}
 
-	dcQuestions := models.Question{Text: "How do you feel about disabled campaigns?", CampaignID: disabledCampaign.ID, Enabled: true}
-	_, err = tx.ValidateAndSave(&dcQuestions)
+	_, err = newQuestion("How do you feel about disabled campaigns?", dc.ID, true)
 	if err != nil {
 		return err
 	}
 
-	multiQuestion := models.Campaign{Name: "Multi Question", StartDate: time.Now(), EndDate: time.Now().Add(36 * time.Hour), Enabled: true}
-	_, err = tx.ValidateAndSave(&multiQuestion)
+	mq, err := newCampaign("Multi Question", time.Now(), time.Now().Add(36*time.Hour), true)
 	if err != nil {
 		return err
 	}
 
-	mqQuestions1 := models.Question{Text: "How do you feel about too many questions?", CampaignID: multiQuestion.ID, Enabled: true}
-	_, err = tx.ValidateAndSave(&mqQuestions1)
+	_, err = newQuestion("How do you feel about too many questions?", mq.ID, true)
 	if err != nil {
 		return err
 	}
 
-	mqQuestions2 := models.Question{Text: "How do you feel about way too many questions?", CampaignID: multiQuestion.ID, Enabled: true}
-	_, err = tx.ValidateAndSave(&mqQuestions2)
+	_, err = newQuestion("How do you feel about way too many questions?", mq.ID, true)
 	if err != nil {
 		return err
 	}
 
-	mqQuestions3 := models.Question{Text: "How do you feel about way way too many questions?", CampaignID: multiQuestion.ID, Enabled: false}
-	_, err = tx.ValidateAndSave(&mqQuestions3)
+	_, err = newQuestion("How do you feel about way way too many questions?", mq.ID, false)
 	if err != nil {
 		return err
 	}
 
 	log.Println("Seeded Campaigns")
 	return err
+}
+
+func newCampaign(name string, start, end time.Time, enabled bool) (*models.Campaign, error) {
+	tx, err := pop.Connect("development")
+	if err != nil {
+		return nil, err
+	}
+
+	campaign := models.Campaign{Name: name, StartDate: start, EndDate: end, Enabled: enabled}
+	out, err := tx.ValidateAndSave(&campaign)
+	if err != nil {
+		return nil, err
+	}
+	log.Println(out)
+	return &campaign, nil
+}
+
+func newQuestion(text string, campaignID uuid.UUID, enabled bool) (*models.Question, error) {
+	tx, err := pop.Connect("development")
+	if err != nil {
+		return nil, err
+	}
+
+	question := models.Question{Text: text, CampaignID: campaignID, Enabled: enabled}
+	_, err = tx.ValidateAndSave(&question)
+	if err != nil {
+		return nil, err
+	}
+
+	return &question, nil
+}
+
+func newAnswer(text string, questionID uuid.UUID) (*models.Answer, error) {
+	tx, err := pop.Connect("development")
+	if err != nil {
+		return nil, err
+	}
+
+	answer := models.Answer{Text: text, QuestionID: questionID}
+	_, err = tx.ValidateAndSave(&answer)
+	if err != nil {
+		return nil, err
+	}
+
+	return &answer, nil
 }
