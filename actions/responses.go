@@ -3,8 +3,8 @@ package actions
 import (
 	"log"
 
-	"git.yale.edu/spinup/tweaser/helpers"
-	"git.yale.edu/spinup/tweaser/models"
+	"github.com/YaleUniversity/tweaser/helpers"
+	"github.com/YaleUniversity/tweaser/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"

@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"git.yale.edu/spinup/tweaser/models"
+	"github.com/YaleUniversity/tweaser/models"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/markbates/grift/grift"

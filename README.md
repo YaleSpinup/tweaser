@@ -20,4 +20,8 @@ The *tweaser* has a fairly hierarchical database model with `Campaigns`, `Questi
 
 `Answers` are the predefined responses to a question.  Answers are created administratively and have text and a type (`input`, or `choice`).  An answer `belongs_to` a question.
 
+## Responses
+
+`Responses` are the responses to questions from users.  A response is POST'd to the endpoint for a question.  The response may have more than one `Answer` and some text if the `Answer` type is `input`.  Responses have a `many_to_many` relationship with `Answers`.
+
 [Powered by Buffalo](http://gobuffalo.io)

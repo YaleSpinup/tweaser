@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/unrolled/secure"
 
-	"git.yale.edu/spinup/tweaser/models"
+	"github.com/YaleUniversity/tweaser/models"
 	"github.com/gobuffalo/x/sessions"
 	"github.com/rs/cors"
 )

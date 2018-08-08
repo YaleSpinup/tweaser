@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"git.yale.edu/spinup/tweaser/models"
+	"github.com/YaleUniversity/tweaser/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
 	"github.com/pkg/errors"

@@ -2,8 +2,8 @@
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build/
 FROM gobuffalo/buffalo:v0.12.4 as builder
 
-RUN mkdir -p $GOPATH/src/git.yale.edu/spinup/tweaser
-WORKDIR $GOPATH/src/git.yale.edu/spinup/tweaser
+RUN mkdir -p $GOPATH/src/github.com/YaleUniversity/tweaser
+WORKDIR $GOPATH/src/github.com/YaleUniversity/tweaser
 
 ADD . .
 RUN dep ensure

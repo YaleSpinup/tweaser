@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"git.yale.edu/spinup/tweaser/actions"
+	"github.com/YaleUniversity/tweaser/actions"
 )
 
 // main is the starting point to your Buffalo application.
