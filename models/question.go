@@ -19,6 +19,8 @@ type Question struct {
 	CampaignID uuid.UUID `json:"campaign_id" db:"campaign_id"`
 	Enabled    bool      `json:"enabled" db:"enabled"`
 	Answers    Answers   `has_many:"answers" json:"answers,omitempty"`
+	Type       string    `json:"type" db:"type"`
+	Token      string    `json:"token,omitempty" db:"-"`
 }
 
 // String is not required by pop and may be deleted

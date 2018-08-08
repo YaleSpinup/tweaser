@@ -1,6 +1,10 @@
 package actions
 
 import (
+	"strconv"
+	"time"
+
+	"git.yale.edu/spinup/tweaser/helpers"
 	"git.yale.edu/spinup/tweaser/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
@@ -8,7 +12,7 @@ import (
 )
 
 // CampaignsList gets a paginated list of campaigns.
-// GET /v1/tweaser/campaigns
+// GET /v1/tweaser/campaigns[?user_id=someguy][&active=true|false][&enabled=true]
 func CampaignsList(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -18,9 +22,22 @@ func CampaignsList(c buffalo.Context) error {
 
 	campaigns := &models.Campaigns{}
 
+	q := tx.Q()
+	if active, err := strconv.ParseBool(c.Param("active")); err == nil {
+		if active {
+			q = q.Where("start_date <= ?", time.Now()).Where("end_date > ?", time.Now())
+		} else {
+			q = q.Where("(start_date > ? or end_date <= ?)", time.Now(), time.Now())
+		}
+	}
+
+	if enabled, err := strconv.ParseBool(c.Param("enabled")); err == nil {
+		q = q.Where("enabled = ?", enabled)
+	}
+
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
-	q := tx.PaginateFromParams(c.Params())
+	q = q.PaginateFromParams(c.Params())
 
 	// Retrieve all Campaigns from the DB
 	if err := q.All(campaigns); err != nil {
@@ -33,8 +50,10 @@ func CampaignsList(c buffalo.Context) error {
 	return c.Render(200, r.JSON(campaigns))
 }
 
-// CampaignsGet gets a Campaign by ID.
-// GET /v1/tweaser/campaigns/{campaign_id}
+// CampaignsGet gets a Campaign by ID.  It will optionally eagerly load all of the
+// questions and answers and also generate a token for each question if a user_id
+// param is passed.
+// GET /v1/tweaser/campaigns/{campaign_id}[?user_id=someguy]
 func CampaignsGet(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -45,32 +64,44 @@ func CampaignsGet(c buffalo.Context) error {
 	// Allocate an empty Campaign
 	campaign := &models.Campaign{}
 
-	// To find the Campaign the parameter campaign_id is used.
-	if err := tx.Eager("Questions").Find(campaign, c.Param("campaign_id")); err != nil {
-		return c.Error(404, err)
+	if userid := c.Param("user_id"); userid == "" {
+		// To find the Campaign the parameter campaign_id is used.
+		if err := tx.Find(campaign, c.Param("campaign_id")); err != nil {
+			return c.Error(404, err)
+		}
+	} else {
+		// To find the Campaign the parameter campaign_id is used.
+		if err := tx.Eager("Questions").Find(campaign, c.Param("campaign_id")); err != nil {
+			return c.Error(404, err)
+		}
+
+		var qids []string
+		for _, q := range campaign.Questions {
+			qids = append(qids, q.ID.String())
+		}
+
+		for i, q := range campaign.Questions {
+			answers := models.Answers{}
+			if err := tx.Where("question_id in (?)", q.ID.String()).All(&answers); err != nil {
+				return c.Error(500, err)
+			}
+			campaign.Questions[i].Answers = answers
+
+			mt := helpers.ModelToken{
+				ID:     q.ID,
+				Secret: CryptToken,
+				UserID: userid,
+			}
+			token, err := mt.Generate()
+			if err != nil {
+				return c.Error(500, err)
+			}
+
+			campaign.Questions[i].Token = token
+		}
 	}
 
 	return c.Render(200, r.JSON(campaign))
-}
-
-// CampaignsGetQuestions gets the questions for a given Campaign.
-// GET /v1/tweaser/campaigns/{campaign_id}/questions
-func CampaignsGetQuestions(c buffalo.Context) error {
-	// Get the DB connection from the context
-	tx, ok := c.Value("tx").(*pop.Connection)
-	if !ok {
-		return errors.WithStack(errors.New("no transaction found"))
-	}
-
-	// Allocate an empty Campaign
-	campaign := &models.Campaign{}
-
-	// To find the Campaign the parameter campaign_id is used.
-	if err := tx.Eager("Questions").Find(campaign, c.Param("campaign_id")); err != nil {
-		return c.Error(404, err)
-	}
-
-	return c.Render(200, r.JSON(campaign.Questions))
 }
 
 // CampaignsCreate creates a new Campaign in the database

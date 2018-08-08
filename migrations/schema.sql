@@ -24,7 +24,8 @@ DROP TABLE IF EXISTS `answers`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `answers` (
   `id` char(36) NOT NULL,
-  `text` text NOT NULL,
+  `text` text,
+  `type` varchar(255) NOT NULL DEFAULT 'choice',
   `question_id` char(36) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
@@ -63,6 +64,42 @@ CREATE TABLE `questions` (
   `text` text NOT NULL,
   `campaign_id` char(36) DEFAULT NULL,
   `enabled` tinyint(1) NOT NULL DEFAULT '0',
+  `type` varchar(255) NOT NULL DEFAULT 'single',
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `response_answers`
+--
+
+DROP TABLE IF EXISTS `response_answers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `response_answers` (
+  `id` char(36) NOT NULL,
+  `answer_id` char(36) NOT NULL,
+  `response_id` char(36) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `responses`
+--
+
+DROP TABLE IF EXISTS `responses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `responses` (
+  `id` char(36) NOT NULL,
+  `question_id` char(36) NOT NULL,
+  `user_id` varchar(255) NOT NULL,
+  `text` text,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
@@ -91,4 +128,4 @@ CREATE TABLE `schema_migration` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-08-01 13:43:46
+-- Dump completed on 2018-08-08 14:16:50

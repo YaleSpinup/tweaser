@@ -1,5 +1,6 @@
 create_table("answers") {
 	t.Column("id", "uuid", {"primary": true})
-	t.Column("text", "text", {})
+	t.Column("text", "text", {"null": true})
+	t.Column("type", "string", {"default": "choice"})
 	t.Column("question_id", "uuid", {"null": true})
 }
