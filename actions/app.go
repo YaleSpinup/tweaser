@@ -36,7 +36,7 @@ func App() *buffalo.App {
 			SessionName: "_tweaser_session",
 		})
 		// Automatically redirect to SSL
-		app.Use(forceSSL())
+		// app.Use(forceSSL())
 
 		// Set the request content type to JSON
 		app.Use(middleware.SetContentType("application/json"))
