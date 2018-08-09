@@ -35,13 +35,13 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("container service", "choice", nfq.ID); err != nil {
+	if _, err = newAnswer("container service", nfq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("standalone databases", "choice", nfq.ID); err != nil {
+	if _, err = newAnswer("standalone databases", nfq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("serverless computing", "choice", nfq.ID); err != nil {
+	if _, err = newAnswer("serverless computing", nfq.ID); err != nil {
 		return err
 	}
 
@@ -55,16 +55,16 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("servers for regulated data", "choice", lbq.ID); err != nil {
+	if _, err = newAnswer("servers for regulated data", lbq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("tryit", "choice", lbq.ID); err != nil {
+	if _, err = newAnswer("tryit", lbq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("windows servers", "choice", lbq.ID); err != nil {
+	if _, err = newAnswer("windows servers", lbq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("external requests", "choice", lbq.ID); err != nil {
+	if _, err = newAnswer("external requests", lbq.ID); err != nil {
 		return err
 	}
 
@@ -78,16 +78,16 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("Camden", "choice", fdq.ID); err != nil {
+	if _, err = newAnswer("Camden", fdq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Tenyo", "choice", fdq.ID); err != nil {
+	if _, err = newAnswer("Tenyo", fdq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Galen", "choice", fdq.ID); err != nil {
+	if _, err = newAnswer("Galen", fdq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Andrew", "choice", fdq.ID); err != nil {
+	if _, err = newAnswer("Andrew", fdq.ID); err != nil {
 		return err
 	}
 
@@ -101,13 +101,13 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("Good", "choice", dcq.ID); err != nil {
+	if _, err = newAnswer("Good", dcq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Bad", "choice", dcq.ID); err != nil {
+	if _, err = newAnswer("Bad", dcq.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Meh", "choice", dcq.ID); err != nil {
+	if _, err = newAnswer("Meh", dcq.ID); err != nil {
 		return err
 	}
 
@@ -120,13 +120,13 @@ func seedCampaigns(c *grift.Context) error {
 	if err != nil {
 		return err
 	}
-	if _, err = newAnswer("Good", "choice", mcq1.ID); err != nil {
+	if _, err = newAnswer("Good", mcq1.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Bad", "choice", mcq1.ID); err != nil {
+	if _, err = newAnswer("Bad", mcq1.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Meh", "choice", mcq1.ID); err != nil {
+	if _, err = newAnswer("Meh", mcq1.ID); err != nil {
 		return err
 	}
 
@@ -134,21 +134,23 @@ func seedCampaigns(c *grift.Context) error {
 	if err != nil {
 		return err
 	}
-	if _, err = newAnswer("Good", "choice", mcq2.ID); err != nil {
+	if _, err = newAnswer("Good", mcq2.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Bad", "choice", mcq2.ID); err != nil {
+	if _, err = newAnswer("Bad", mcq2.ID); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Other", "input", mcq2.ID); err != nil {
+	if _, err = newAnswer("Other", mcq2.ID); err != nil {
 		return err
 	}
 
-	mcq3, err := newQuestion("How do you feel about free form questions?", "input", mc.ID, false)
+	_, err = newQuestion("How do you feel about disabled free form questions?", "input", mc.ID, false)
 	if err != nil {
 		return err
 	}
-	if _, err = newAnswer("", "input", mcq3.ID); err != nil {
+
+	_, err = newQuestion("How do you feel about enabled free form questions?", "input", mc.ID, true)
+	if err != nil {
 		return err
 	}
 
@@ -185,13 +187,13 @@ func newQuestion(text, qType string, campaignID uuid.UUID, enabled bool) (*model
 	return &question, nil
 }
 
-func newAnswer(text, aType string, questionID uuid.UUID) (*models.Answer, error) {
+func newAnswer(text string, questionID uuid.UUID) (*models.Answer, error) {
 	tx, err := pop.Connect("development")
 	if err != nil {
 		return nil, err
 	}
 
-	answer := models.Answer{Text: text, QuestionID: questionID, Type: aType}
+	answer := models.Answer{Text: text, QuestionID: questionID}
 	_, err = tx.ValidateAndSave(&answer)
 	if err != nil {
 		return nil, err

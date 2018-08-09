@@ -85,13 +85,15 @@ func ResponsesCreate(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
+	if err = tx.Find(&response.Question, response.QuestionID); err != nil {
+		return c.Render(404, r.JSON("Question Not Found."))
+	}
+
 	// Validate the posted data and save it to the database
 	verrs, err := tx.ValidateAndCreate(response)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-
-	log.Println(response)
 
 	for _, a := range response.Answers {
 		ra := &models.ResponseAnswer{

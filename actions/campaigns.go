@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/YaleUniversity/tweaser/helpers"
 	"github.com/YaleUniversity/tweaser/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
@@ -12,7 +11,7 @@ import (
 )
 
 // CampaignsList gets a paginated list of campaigns.
-// GET /v1/tweaser/campaigns[?user_id=someguy][&active=true|false][&enabled=true]
+// GET /v1/tweaser/campaigns[?active=true|false][&enabled=true|false]
 func CampaignsList(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -53,7 +52,7 @@ func CampaignsList(c buffalo.Context) error {
 // CampaignsGet gets a Campaign by ID.  It will optionally eagerly load all of the
 // questions and answers and also generate a token for each question if a user_id
 // param is passed.
-// GET /v1/tweaser/campaigns/{campaign_id}[?user_id=someguy]
+// GET /v1/tweaser/campaigns/{campaign_id}
 func CampaignsGet(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -64,41 +63,9 @@ func CampaignsGet(c buffalo.Context) error {
 	// Allocate an empty Campaign
 	campaign := &models.Campaign{}
 
-	if userid := c.Param("user_id"); userid == "" {
-		// To find the Campaign the parameter campaign_id is used.
-		if err := tx.Find(campaign, c.Param("campaign_id")); err != nil {
-			return c.Error(404, err)
-		}
-	} else {
-		// To find the Campaign the parameter campaign_id is used.
-		if err := tx.Eager("Questions").Find(campaign, c.Param("campaign_id")); err != nil {
-			return c.Error(404, err)
-		}
-
-		var qids []string
-		for _, q := range campaign.Questions {
-			qids = append(qids, q.ID.String())
-		}
-
-		for i, q := range campaign.Questions {
-			answers := models.Answers{}
-			if err := tx.Where("question_id in (?)", q.ID.String()).All(&answers); err != nil {
-				return c.Error(500, err)
-			}
-			campaign.Questions[i].Answers = answers
-
-			mt := helpers.ModelToken{
-				ID:     q.ID,
-				Secret: CryptToken,
-				UserID: userid,
-			}
-			token, err := mt.Generate()
-			if err != nil {
-				return c.Error(500, err)
-			}
-
-			campaign.Questions[i].Token = token
-		}
+	// To find the Campaign the parameter campaign_id is used.
+	if err := tx.Find(campaign, c.Param("campaign_id")); err != nil {
+		return c.Error(404, err)
 	}
 
 	return c.Render(200, r.JSON(campaign))

@@ -16,7 +16,6 @@ type Answer struct {
 	Text       string    `json:"text" db:"text"`
 	Question   Question  `belongs_to:"question" json:"-"`
 	QuestionID uuid.UUID `json:"question_id" db:"question_id"`
-	Type       string    `json:"type" db:"type"`
 }
 
 // String is not required by pop and may be deleted

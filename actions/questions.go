@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"github.com/YaleUniversity/tweaser/helpers"
 	"github.com/YaleUniversity/tweaser/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/pop"
@@ -8,7 +9,7 @@ import (
 )
 
 // QuestionsList returns the list of questions.
-// /v1/tweaser/questions
+// /v1/tweaser/questions[?user_id=someguy]
 func QuestionsList(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -16,19 +17,41 @@ func QuestionsList(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	questions := &models.Questions{}
+	questions := []models.Question{}
 
 	// Paginate results. Params "page" and "per_page" control pagination.
 	// Default values are "page=1" and "per_page=20".
 	q := tx.PaginateFromParams(c.Params())
 
-	// Retrieve all Questions from the DB
-	if err := q.All(questions); err != nil {
-		return errors.WithStack(err)
-	}
+	if userid := c.Param("user_id"); userid == "" {
+		// Retrieve all Questions from the DB
+		if err := q.All(&questions); err != nil {
+			return errors.WithStack(err)
+		}
+	} else {
+		// select * from questions where id not in (select question_id from responses where user_id ="cf322");
+		q = q.RawQuery("SELECT * FROM questions WHERE id NOT IN (select question_id FROM responses WHERE user_id = ?) and enabled = true", userid)
+		err := q.Eager("Answers").All(&questions)
+		if err != nil {
+			return c.Render(404, r.JSON([]string{}))
+		}
 
-	// Add the paginator to the context so it can be used in the template.
-	c.Set("pagination", q.Paginator)
+		// Generate a token for each question
+		for i, q := range questions {
+			mt := helpers.ModelToken{
+				ID:     q.ID,
+				Secret: CryptToken,
+				UserID: userid,
+			}
+
+			token, err := mt.Generate()
+			if err != nil {
+				return c.Render(500, r.JSON("Internal server error."))
+			}
+
+			questions[i].Token = token
+		}
+	}
 
 	return c.Render(200, r.JSON(questions))
 }

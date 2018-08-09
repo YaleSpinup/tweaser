@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -44,6 +45,7 @@ func (r *Response) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: r.QuestionID, Name: "QuestionID"},
 		&validators.StringIsPresent{Field: r.UserID, Name: "UserID"},
 		&UserAlreadyResponded{UserID: r.UserID, QuestionID: r.QuestionID, tx: tx, Name: "UserAlreadyResponded"},
+		&IncorrectType{QuestionType: r.Question.Type, Text: r.Text, Name: "IncorrectType"},
 	), nil
 }
 
@@ -71,7 +73,24 @@ func (u *UserAlreadyResponded) IsValid(errors *validate.Errors) {
 	query := u.tx.Where("question_id = ?", u.QuestionID).Where("user_id = ?", u.UserID)
 	err := query.First(&response)
 	if err == nil {
-		// found response from this user
 		errors.Add(validators.GenerateKey(u.Name), fmt.Sprintf("User %s has already responded to question %s.", u.UserID, u.QuestionID))
+	}
+}
+
+type IncorrectType struct {
+	Name         string
+	QuestionType string
+	Text         string
+}
+
+func (i *IncorrectType) IsValid(errors *validate.Errors) {
+	log.Printf("Checking Type %+v", i)
+
+	if i.QuestionType == "input" && i.Text == "" {
+		errors.Add(validators.GenerateKey(i.Name), "Missing response text for input type")
+	}
+
+	if i.QuestionType != "input" && i.Text != "" {
+		errors.Add(validators.GenerateKey(i.Name), "Response text is not allowed for non-input type")
 	}
 }

@@ -93,7 +93,7 @@ func sharedTokenAuth(next buffalo.Handler) buffalo.Handler {
 		headers, ok := c.Request().Header["X-Auth-Token"]
 		if !ok || len(headers) == 0 || headers[0] != AdminToken {
 			log.Println("Missing or bad token header for request", c.Request().URL)
-			return c.Error(401, errors.New("Unauthorized!"))
+			return c.Error(403, errors.New("Forbidden!"))
 		}
 		log.Println("Auth looks good")
 		return next(c)
