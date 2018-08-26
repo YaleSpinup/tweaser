@@ -49,9 +49,7 @@ func CampaignsList(c buffalo.Context) error {
 	return c.Render(200, r.JSON(campaigns))
 }
 
-// CampaignsGet gets a Campaign by ID.  It will optionally eagerly load all of the
-// questions and answers and also generate a token for each question if a user_id
-// param is passed.
+// CampaignsGet gets a Campaign by ID
 // GET /v1/tweaser/campaigns/{campaign_id}
 func CampaignsGet(c buffalo.Context) error {
 	// Get the DB connection from the context
@@ -69,6 +67,26 @@ func CampaignsGet(c buffalo.Context) error {
 	}
 
 	return c.Render(200, r.JSON(campaign))
+}
+
+// CampaignsGetQuestions gets a Campaign's questions by campaign ID.
+// GET /v1/tweaser/campaigns/{campaign_id}/questions
+func CampaignsGetQuestions(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Campaign
+	campaign := &models.Campaign{}
+
+	// To find the Campaign the parameter campaign_id is used.
+	if err := tx.Eager("Questions").Find(campaign, c.Param("campaign_id")); err != nil {
+		return c.Error(404, err)
+	}
+
+	return c.Render(200, r.JSON(campaign.Questions))
 }
 
 // CampaignsCreate creates a new Campaign in the database

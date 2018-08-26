@@ -58,11 +58,14 @@ func App() *buffalo.App {
 		adminAPI.POST("/campaigns", CampaignsCreate)
 		adminAPI.GET("/campaigns/{campaign_id}", CampaignsGet)
 		adminAPI.PUT("/campaigns/{campaign_id}", CampaignsUpdate)
+		adminAPI.GET("/campaigns/{campaign_id}/questions", CampaignsGetQuestions)
 
 		adminAPI.GET("/questions", QuestionsList)
 		adminAPI.GET("/questions/{question_id}", QuestionsGet)
 		adminAPI.POST("/questions", QuestionsCreate)
 		adminAPI.PUT("/questions/{question_id}", QuestionsUpdate)
+		adminAPI.GET("/questions/{question_id}/answers", QuestionsGetAnswers)
+		adminAPI.GET("/questions/{question_id}/responses", QuestionsGetResponses)
 
 		adminAPI.GET("/answers", AnswersList)
 		adminAPI.GET("/answers/{answer_id}", AnswersGet)
@@ -93,7 +96,7 @@ func sharedTokenAuth(next buffalo.Handler) buffalo.Handler {
 		headers, ok := c.Request().Header["X-Auth-Token"]
 		if !ok || len(headers) == 0 || headers[0] != AdminToken {
 			log.Println("Missing or bad token header for request", c.Request().URL)
-			return c.Error(403, errors.New("Forbidden!"))
+			return c.Error(403, errors.New("Forbiden!"))
 		}
 		log.Println("Auth looks good")
 		return next(c)

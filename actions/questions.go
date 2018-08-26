@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"time"
+
 	"github.com/YaleUniversity/tweaser/helpers"
 	"github.com/YaleUniversity/tweaser/models"
 	"github.com/gobuffalo/buffalo"
@@ -18,20 +20,35 @@ func QuestionsList(c buffalo.Context) error {
 	}
 
 	questions := []models.Question{}
-
-	// Paginate results. Params "page" and "per_page" control pagination.
-	// Default values are "page=1" and "per_page=20".
-	q := tx.PaginateFromParams(c.Params())
-
 	if userid := c.Param("user_id"); userid == "" {
+		// Paginate results. Params "page" and "per_page" control pagination.
+		// Default values are "page=1" and "per_page=20".
+		q := tx.PaginateFromParams(c.Params())
+
 		// Retrieve all Questions from the DB
 		if err := q.All(&questions); err != nil {
 			return errors.WithStack(err)
 		}
 	} else {
-		// select * from questions where id not in (select question_id from responses where user_id ="cf322");
-		q = q.RawQuery("SELECT * FROM questions WHERE id NOT IN (select question_id FROM responses WHERE user_id = ?) and enabled = true", userid)
-		err := q.Eager("Answers").All(&questions)
+		campaigns := []models.Campaign{}
+		cq := tx.Select("id").Where("start_date <= ?", time.Now()).Where("end_date > ?", time.Now()).Where("enabled = true")
+		err := cq.All(&campaigns)
+		if err != nil {
+			return c.Render(404, r.JSON([]string{}))
+		}
+
+		var campaignIDs []interface{}
+		for _, c := range campaigns {
+			campaignIDs = append(campaignIDs, c.ID.String())
+		}
+
+		// Paginate results. Params "page" and "per_page" control pagination.
+		// Default values are "page=1" and "per_page=20".
+		q := tx.PaginateFromParams(c.Params())
+		q = q.Where("questions.enabled = true")
+		q = q.Where("questions.campaign_id IN (?)", campaignIDs...)
+		q = q.Where("id NOT in (select question_id FROM responses WHERE user_id = (?))", userid)
+		err = q.Eager("Answers").All(&questions)
 		if err != nil {
 			return c.Render(404, r.JSON([]string{}))
 		}
@@ -69,11 +86,49 @@ func QuestionsGet(c buffalo.Context) error {
 	question := &models.Question{}
 
 	// To find the Question the parameter question_id is used.
-	if err := tx.Eager("Answers").Find(question, c.Param("question_id")); err != nil {
+	if err := tx.Find(question, c.Param("question_id")); err != nil {
 		return c.Error(404, err)
 	}
 
 	return c.Render(200, r.JSON(question))
+}
+
+// QuestionsGetAnswers gets the answers for a question by question ID.
+// /v1/tweaser/questions/{question_id}/answers
+func QuestionsGetAnswers(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate an empty Question
+	question := &models.Question{}
+
+	// To find the Question the parameter question_id is used.
+	if err := tx.Eager("Answers").Find(question, c.Param("question_id")); err != nil {
+		return c.Error(404, err)
+	}
+
+	return c.Render(200, r.JSON(question.Answers))
+}
+
+// QuestionsGetResponses gets the responses for a question by question ID.
+// /v1/tweaser/questions/{question_id}/responses
+func QuestionsGetResponses(c buffalo.Context) error {
+	// Get the DB connection from the context
+	tx, ok := c.Value("tx").(*pop.Connection)
+	if !ok {
+		return errors.WithStack(errors.New("no transaction found"))
+	}
+
+	// Allocate empty Responses model
+	responses := models.Responses{}
+	if err := tx.Eager().Where("question_id = (?)", c.Param("question_id")).All(&responses); err != nil {
+		return c.Error(404, err)
+	}
+
+	return c.Render(200, r.JSON(responses))
 }
 
 // QuestionsCreate creates an question.

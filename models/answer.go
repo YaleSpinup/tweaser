@@ -14,6 +14,7 @@ type Answer struct {
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 	Text       string    `json:"text" db:"text"`
+	Enabled    bool      `json:"enabled" db:"enabled"`
 	Question   Question  `belongs_to:"question" json:"-"`
 	QuestionID uuid.UUID `json:"question_id" db:"question_id"`
 }

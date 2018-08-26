@@ -40,6 +40,7 @@ func (r ResponseAnswers) String() string {
 // This method is not required and may be deleted.
 func (r *ResponseAnswer) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.UUIDIsPresent{Field: r.ResponseID, Name: "ResponseID"},
 		&validators.UUIDIsPresent{Field: r.AnswerID, Name: "AnswerID"},
 		&AnswerBelongsToQuestion{Name: "AnswerBelongsToQuestion", AnswerID: r.AnswerID, QuestionID: r.QuestionID, tx: tx},
 	), nil

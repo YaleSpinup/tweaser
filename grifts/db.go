@@ -1,7 +1,9 @@
 package grifts
 
 import (
+	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/YaleUniversity/tweaser/models"
@@ -11,7 +13,6 @@ import (
 )
 
 var _ = grift.Namespace("db", func() {
-
 	grift.Desc("seed", "Seeds a database")
 	grift.Add("seed", func(c *grift.Context) error {
 		err := seedCampaigns(c)
@@ -21,7 +22,6 @@ var _ = grift.Namespace("db", func() {
 
 		return err
 	})
-
 })
 
 func seedCampaigns(c *grift.Context) error {
@@ -35,14 +35,35 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("container service", nfq.ID); err != nil {
+	answerIDs := []uuid.UUID{}
+	a, err := newAnswer("container service", nfq.ID, true)
+	if err != nil {
 		return err
 	}
-	if _, err = newAnswer("standalone databases", nfq.ID); err != nil {
+	answerIDs = append(answerIDs, a.ID)
+
+	a, err = newAnswer("standalone databases", nfq.ID, true)
+	if err != nil {
 		return err
 	}
-	if _, err = newAnswer("serverless computing", nfq.ID); err != nil {
+	answerIDs = append(answerIDs, a.ID)
+
+	a, err = newAnswer("serverless computing", nfq.ID, true)
+	if err != nil {
 		return err
+	}
+	answerIDs = append(answerIDs, a.ID)
+
+	if len(c.Args) > 0 && c.Args[0] == "all" {
+		times := rand.Intn(100)
+		for i := 0; i <= times; i += 1 {
+			userid := fmt.Sprintf("someuser%d", rand.Intn(100))
+			answerID := answerIDs[rand.Intn(len(answerIDs))]
+			_, err = newResponse(userid, "", nfq.ID, []uuid.UUID{answerID})
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	lb, err := newCampaign("Favorite Feature", time.Now().Add(72*time.Hour), time.Now().Add(144*time.Hour), true)
@@ -55,16 +76,16 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("servers for regulated data", lbq.ID); err != nil {
+	if _, err = newAnswer("servers for regulated data", lbq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("tryit", lbq.ID); err != nil {
+	if _, err = newAnswer("tryit", lbq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("windows servers", lbq.ID); err != nil {
+	if _, err = newAnswer("windows servers", lbq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("external requests", lbq.ID); err != nil {
+	if _, err = newAnswer("external requests", lbq.ID, true); err != nil {
 		return err
 	}
 
@@ -78,16 +99,16 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("Camden", fdq.ID); err != nil {
+	if _, err = newAnswer("Camden", fdq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Tenyo", fdq.ID); err != nil {
+	if _, err = newAnswer("Tenyo", fdq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Galen", fdq.ID); err != nil {
+	if _, err = newAnswer("Galen", fdq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Andrew", fdq.ID); err != nil {
+	if _, err = newAnswer("Andrew", fdq.ID, true); err != nil {
 		return err
 	}
 
@@ -101,13 +122,13 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("Good", dcq.ID); err != nil {
+	if _, err = newAnswer("Good", dcq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Bad", dcq.ID); err != nil {
+	if _, err = newAnswer("Bad", dcq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Meh", dcq.ID); err != nil {
+	if _, err = newAnswer("Meh", dcq.ID, true); err != nil {
 		return err
 	}
 
@@ -120,13 +141,13 @@ func seedCampaigns(c *grift.Context) error {
 	if err != nil {
 		return err
 	}
-	if _, err = newAnswer("Good", mcq1.ID); err != nil {
+	if _, err = newAnswer("Good", mcq1.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Bad", mcq1.ID); err != nil {
+	if _, err = newAnswer("Bad", mcq1.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Meh", mcq1.ID); err != nil {
+	if _, err = newAnswer("Meh", mcq1.ID, true); err != nil {
 		return err
 	}
 
@@ -134,13 +155,16 @@ func seedCampaigns(c *grift.Context) error {
 	if err != nil {
 		return err
 	}
-	if _, err = newAnswer("Good", mcq2.ID); err != nil {
+	if _, err = newAnswer("Good", mcq2.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Bad", mcq2.ID); err != nil {
+	if _, err = newAnswer("Bad", mcq2.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Other", mcq2.ID); err != nil {
+	if _, err = newAnswer("Other", mcq2.ID, true); err != nil {
+		return err
+	}
+	if _, err = newAnswer("Supercalifragilisticexpialidocious", mcq2.ID, false); err != nil {
 		return err
 	}
 
@@ -187,17 +211,64 @@ func newQuestion(text, qType string, campaignID uuid.UUID, enabled bool) (*model
 	return &question, nil
 }
 
-func newAnswer(text string, questionID uuid.UUID) (*models.Answer, error) {
+func newAnswer(text string, questionID uuid.UUID, enabled bool) (*models.Answer, error) {
 	tx, err := pop.Connect("development")
 	if err != nil {
 		return nil, err
 	}
 
-	answer := models.Answer{Text: text, QuestionID: questionID}
+	answer := models.Answer{Text: text, QuestionID: questionID, Enabled: enabled}
 	_, err = tx.ValidateAndSave(&answer)
 	if err != nil {
 		return nil, err
 	}
 
 	return &answer, nil
+}
+
+func newResponse(user, text string, questionID uuid.UUID, answerIDs []uuid.UUID) (*models.Response, error) {
+	tx, err := pop.Connect("development")
+	if err != nil {
+		return nil, err
+	}
+
+	var answers models.Answers
+	for _, a := range answerIDs {
+		ans := models.Answer{}
+		if err := tx.Find(&ans, a); err != nil {
+			return nil, err
+		}
+		answers = append(answers, ans)
+	}
+
+	// create response
+	response := models.Response{
+		UserID:     user,
+		Text:       text,
+		QuestionID: questionID,
+		Answers:    answers,
+	}
+
+	_, err = tx.ValidateAndSave(&response)
+	if err != nil {
+		return nil, err
+	}
+
+	// create response/answer association for each
+	for _, a := range answerIDs {
+		log.Println("Creating associations for response id", response, "to answer id", a)
+		responseAnswer := models.ResponseAnswer{
+			ResponseID: response.ID,
+			AnswerID:   a,
+			QuestionID: questionID,
+		}
+		log.Println("responseanswer", responseAnswer)
+
+		_, err := tx.ValidateAndSave(&responseAnswer)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &response, nil
 }

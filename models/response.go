@@ -13,14 +13,15 @@ import (
 )
 
 type Response struct {
-	ID         uuid.UUID `json:"id" db:"id"`
-	CreatedAt  time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
-	UserID     string    `json:"user_id" db:"user_id"`
-	Text       string    `json:"text" db:"text"`
-	Question   Question  `belongs_to:"question" json:"-"`
-	QuestionID uuid.UUID `json:"question_id" db:"question_id"`
-	Answers    Answers   `many_to_many:"response_answers"`
+	ID         uuid.UUID   `json:"id" db:"id"`
+	CreatedAt  time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt  time.Time   `json:"updated_at" db:"updated_at"`
+	UserID     string      `json:"user_id" db:"user_id"`
+	Text       string      `json:"text" db:"text"`
+	Question   Question    `belongs_to:"question" json:"-"`
+	QuestionID uuid.UUID   `json:"question_id" db:"question_id"`
+	Answers    Answers     `many_to_many:"response_answers"`
+	AnswerIDs  []uuid.UUID `json:"answer_ids" db:"-"`
 }
 
 // String is not required by pop and may be deleted
