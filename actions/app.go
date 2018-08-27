@@ -35,8 +35,6 @@ func App() *buffalo.App {
 			},
 			SessionName: "_tweaser_session",
 		})
-		// Automatically redirect to SSL
-		// app.Use(forceSSL())
 
 		// Set the request content type to JSON
 		app.Use(middleware.SetContentType("application/json"))
@@ -96,7 +94,7 @@ func sharedTokenAuth(next buffalo.Handler) buffalo.Handler {
 		headers, ok := c.Request().Header["X-Auth-Token"]
 		if !ok || len(headers) == 0 || headers[0] != AdminToken {
 			log.Println("Missing or bad token header for request", c.Request().URL)
-			return c.Error(403, errors.New("Forbiden!"))
+			return c.Error(403, errors.New("Forbidden!"))
 		}
 		log.Println("Auth looks good")
 		return next(c)
