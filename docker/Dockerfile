@@ -23,7 +23,7 @@ WORKDIR /bin/
 COPY --from=builder /bin/app .
 COPY docker/*_config.sh /bin
 
-ENV GO_ENV=production
+ENV GO_ENV=development
 ENV PORT=8080
 ENV ADDR=0.0.0.0
 
