@@ -1,7 +1,7 @@
 package grifts
 
 import (
-	"github.com/YaleUniversity/tweaser/actions"
+	"github.com/YaleSpinup/tweaser/actions"
 	"github.com/gobuffalo/buffalo"
 )
 

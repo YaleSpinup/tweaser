@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/YaleUniversity/tweaser/models"
+	"github.com/YaleSpinup/tweaser/models"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/markbates/grift/grift"
