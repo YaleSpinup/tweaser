@@ -48,7 +48,7 @@ func QuestionsList(c buffalo.Context) error {
 		q = q.Where("questions.enabled = true")
 		q = q.Where("questions.campaign_id IN (?)", campaignIDs...)
 		q = q.Where("id NOT in (select question_id FROM responses WHERE user_id = (?))", userid)
-		err = q.Eager("Answers").All(&questions)
+		err = q.All(&questions)
 		if err != nil {
 			return c.Render(404, r.JSON([]string{}))
 		}
@@ -67,6 +67,14 @@ func QuestionsList(c buffalo.Context) error {
 			}
 
 			questions[i].Token = token
+
+			// Get the enabled answers for the question and append them to the questions response
+			answers := []models.Answer{}
+			err = tx.Where("question_id = ?", q.ID).Where("enabled = true").All(&answers)
+			if err != nil {
+				return c.Render(500, r.JSON("Internal server error."))
+			}
+			questions[i].Answers = answers
 		}
 	}
 
