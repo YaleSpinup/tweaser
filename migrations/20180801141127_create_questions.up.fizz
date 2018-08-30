@@ -1,0 +1,7 @@
+create_table("questions") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("text", "text", {})
+	t.Column("campaign_id", "uuid", {"null": true})
+	t.Column("enabled", "bool", {"default": false})
+	t.Column("type", "string", {"default": "single"})
+}

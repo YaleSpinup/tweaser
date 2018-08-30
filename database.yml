@@ -1,14 +1,35 @@
 development:
   dialect: "mysql"
   database: "tweaser_development"
-  host: "localhost"
+  host: "127.0.0.1"
+  port: "13306"
+  user: "root"
+  password: "secret"
+  encoding: "utf8mb4_general_ci"
+
+local:
+  dialect: "mysql"
+  database: "tweaser_development"
+  host: "mysql"
   port: "3306"
   user: "root"
-  password: "root"
+  password: "secret"
   encoding: "utf8mb4_general_ci"
 
 test:
-  url: {{envOr "TEST_DATABASE_URL" "mysql://root:root@(localhost:3306)/tweaser_test?parseTime=true&multiStatements=true&readTimeout=1s"}}
+  dialect: {{envOr "DB_DIALECT" "mysql"}}
+  database: {{envOr "DB_DATABASE" "tweaser_test"}}
+  host: {{envOr "DB_HOST" "127.0.0.1"}}
+  port: {{envOr "DB_PORT" "3306"}}
+  user: {{envOr "DB_USER" "root"}}
+  password: {{envOr "DB_PASS" "root"}}
+  encoding: {{envOr "DB_ENCODING" "utf8mb4_general_ci"}}
 
 production:
-  url: {{envOr "DATABASE_URL" "mysql://root:root@(localhost:3306)/tweaser_production?parseTime=true&multiStatements=true&readTimeout=1s"}}
+  dialect: {{envOr "DB_DIALECT" "mysql"}}
+  database: {{envOr "DB_DATABASE" "tweaser_production"}}
+  host: {{envOr "DB_HOST" "127.0.0.1"}}
+  port: {{envOr "DB_PORT" "3306"}}
+  user: {{envOr "DB_USER" "root"}}
+  password: {{envOr "DB_PASS" "root"}}
+  encoding: {{envOr "DB_ENCODING" "utf8mb4_general_ci"}}
