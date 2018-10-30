@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"log"
 	"time"
 
 	"github.com/YaleSpinup/tweaser/helpers"
@@ -122,7 +123,7 @@ func QuestionsGetAnswers(c buffalo.Context) error {
 }
 
 // QuestionsGetResponses gets the responses for a question by question ID.
-// /v1/tweaser/questions/{question_id}/responses
+// /v1/tweaser/questions/{question_id}/responses[?extended=true]
 func QuestionsGetResponses(c buffalo.Context) error {
 	// Get the DB connection from the context
 	tx, ok := c.Value("tx").(*pop.Connection)
@@ -130,13 +131,42 @@ func QuestionsGetResponses(c buffalo.Context) error {
 		return errors.WithStack(errors.New("no transaction found"))
 	}
 
-	// Allocate empty Responses model
-	responses := models.Responses{}
-	if err := tx.Eager().Where("question_id = (?)", c.Param("question_id")).All(&responses); err != nil {
+	if e := c.Param("extended"); e != "" {
+		// Allocate empty Responses model
+		responses := models.Responses{}
+		if err := tx.Eager().Where("question_id = (?)", c.Param("question_id")).All(&responses); err != nil {
+			return c.Error(404, err)
+		}
+		return c.Render(200, r.JSON(responses))
+	}
+
+	question := &models.Question{}
+	if err := tx.Eager("Answers").Find(question, c.Param("question_id")); err != nil {
 		return c.Error(404, err)
 	}
 
-	return c.Render(200, r.JSON(responses))
+	counts := map[string]int{}
+	answers := map[string]string{}
+	for _, a := range question.Answers {
+		id := a.ID.String()
+		rq := []models.ResponseAnswer{}
+		count, err := tx.Where("answer_id = (?)", id).Count(&rq)
+		if err != nil {
+			return c.Error(404, err)
+		}
+		counts[id] = count
+		answers[id] = a.Text
+	}
+
+	resp := struct {
+		Count   map[string]int    `json:"count"`
+		Answers map[string]string `json:"answers"`
+	}{
+		Count:   counts,
+		Answers: answers,
+	}
+	log.Println("returing:", resp)
+	return c.Render(200, r.JSON(resp))
 }
 
 // QuestionsCreate creates an question.
