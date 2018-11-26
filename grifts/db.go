@@ -13,7 +13,7 @@ import (
 )
 
 var _ = grift.Namespace("db", func() {
-	grift.Desc("seed", "Seeds a database")
+	_ = grift.Desc("seed", "Seeds a database")
 	grift.Add("seed", func(c *grift.Context) error {
 		err := seedCampaigns(c)
 		if err != nil {
@@ -76,17 +76,37 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("servers for regulated data", lbq.ID, true); err != nil {
+	answerIDs = []uuid.UUID{}
+	if a, err = newAnswer("servers for regulated data", lbq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("tryit", lbq.ID, true); err != nil {
+	answerIDs = append(answerIDs, a.ID)
+
+	if a, err = newAnswer("tryit", lbq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("windows servers", lbq.ID, true); err != nil {
+	answerIDs = append(answerIDs, a.ID)
+
+	if a, err = newAnswer("windows servers", lbq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("external requests", lbq.ID, true); err != nil {
+	answerIDs = append(answerIDs, a.ID)
+
+	if a, err = newAnswer("external requests", lbq.ID, true); err != nil {
 		return err
+	}
+	answerIDs = append(answerIDs, a.ID)
+
+	if len(c.Args) > 0 && c.Args[0] == "all" {
+		times := rand.Intn(100)
+		for i := 0; i <= times; i += 1 {
+			userid := fmt.Sprintf("someuser%d", rand.Intn(100))
+			answerID := answerIDs[rand.Intn(len(answerIDs))]
+			_, err = newResponse(userid, "", lbq.ID, []uuid.UUID{answerID})
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	fd, err := newCampaign("Favorite Developer", time.Now().Add(-72*time.Hour), time.Now(), true)
@@ -99,17 +119,37 @@ func seedCampaigns(c *grift.Context) error {
 		return err
 	}
 
-	if _, err = newAnswer("Camden", fdq.ID, true); err != nil {
+	answerIDs = []uuid.UUID{}
+	if a, err = newAnswer("Camden", fdq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Tenyo", fdq.ID, true); err != nil {
+	answerIDs = append(answerIDs, a.ID)
+
+	if a, err = newAnswer("Tenyo", fdq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Galen", fdq.ID, true); err != nil {
+	answerIDs = append(answerIDs, a.ID)
+
+	if a, err = newAnswer("Galen", fdq.ID, true); err != nil {
 		return err
 	}
-	if _, err = newAnswer("Andrew", fdq.ID, true); err != nil {
+	answerIDs = append(answerIDs, a.ID)
+
+	if a, err = newAnswer("Andrew", fdq.ID, true); err != nil {
 		return err
+	}
+	answerIDs = append(answerIDs, a.ID)
+
+	if len(c.Args) > 0 && c.Args[0] == "all" {
+		times := rand.Intn(100)
+		for i := 0; i <= times; i += 1 {
+			userid := fmt.Sprintf("someuser%d", rand.Intn(100))
+			answerID := answerIDs[rand.Intn(len(answerIDs))]
+			_, err = newResponse(userid, "", lbq.ID, []uuid.UUID{answerID})
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	dc, err := newCampaign("Disabled Campaign", time.Now().Add(-72*time.Hour), time.Now(), false)
