@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"log"
 	"time"
 
 	"github.com/YaleSpinup/tweaser/helpers"
@@ -165,7 +164,6 @@ func QuestionsGetResponses(c buffalo.Context) error {
 		Count:   counts,
 		Answers: answers,
 	}
-	log.Println("returing:", resp)
 	return c.Render(200, r.JSON(resp))
 }
 
