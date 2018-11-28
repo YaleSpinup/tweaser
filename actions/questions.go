@@ -147,6 +147,10 @@ func QuestionsGetResponses(c buffalo.Context) error {
 	counts := map[string]int{}
 	answers := map[string]string{}
 	for _, a := range question.Answers {
+		if !a.Enabled {
+			continue
+		}
+
 		id := a.ID.String()
 		rq := []models.ResponseAnswer{}
 		count, err := tx.Where("answer_id = (?)", id).Count(&rq)
