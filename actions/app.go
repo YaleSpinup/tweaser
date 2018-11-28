@@ -12,17 +12,34 @@ import (
 	"github.com/pkg/errors"
 	"github.com/unrolled/secure"
 
+	"github.com/YaleSpinup/tweaser/tweaser"
 	"github.com/YaleSpinup/tweaser/models"
 	"github.com/gobuffalo/x/sessions"
 	"github.com/rs/cors"
 )
 
-// ENV is used to help switch settings based on where the
-// application is being run. Default is "development".
-var ENV = envy.Get("GO_ENV", "development")
-var app *buffalo.App
-var AdminToken = envy.Get("ADMIN_TOKEN", "")
-var CryptToken = envy.Get("CRYPT_TOKEN", "")
+var (
+	app *buffalo.App
+
+	// ENV is used to help switch settings based on where the
+	// application is being run. Default is "development".
+	ENV = envy.Get("GO_ENV", "development")
+	AdminToken = envy.Get("ADMIN_TOKEN", "")
+	CryptToken = envy.Get("CRYPT_TOKEN", "")
+
+	// Version is the main version number
+	Version = tweaser.Version
+
+	// VersionPrerelease is a prerelease marker
+	VersionPrerelease = tweaser.VersionPrerelease
+
+	// buildstamp is the timestamp the binary was built, it should be set at buildtime with ldflags
+	buildstamp = "No BuildStamp Provided"
+
+	// githash is the git sha of the built binary, it should be set at buildtime with ldflags
+	githash = "No Git Commit Provided"
+)
+
 
 // App is where all routes and middleware for buffalo
 // should be defined. This is the nerve center of your
@@ -47,6 +64,7 @@ func App() *buffalo.App {
 
 		app.Use(popmw.Transaction(models.DB))
 		app.GET("/v1/tweaser/ping", PingPong)
+		app.GET("/v1/tweaser/version", VersionHandler)
 
 		userAPI := app.Group("/v1/tweaser")
 		userAPI.POST("/responses", ResponsesCreate)
