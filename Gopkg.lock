@@ -96,6 +96,7 @@
     ".",
     "binding",
     "render",
+    "runtime",
     "servers",
     "worker",
   ]
@@ -790,6 +791,7 @@
     "github.com/gobuffalo/buffalo",
     "github.com/gobuffalo/buffalo-pop/pop/popmw",
     "github.com/gobuffalo/buffalo/render",
+    "github.com/gobuffalo/buffalo/runtime",
     "github.com/gobuffalo/envy",
     "github.com/gobuffalo/mw-contenttype",
     "github.com/gobuffalo/mw-forcessl",
@@ -802,6 +804,7 @@
     "github.com/gobuffalo/validate/validators",
     "github.com/gobuffalo/x/sessions",
     "github.com/markbates/grift/grift",
+    "github.com/markbates/inflect",
     "github.com/pkg/errors",
     "github.com/rs/cors",
     "github.com/sirupsen/logrus",

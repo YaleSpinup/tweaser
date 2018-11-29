@@ -12,7 +12,7 @@ WORKDIR $GOPATH/src/github.com/YaleSpinup/tweaser
 
 ADD . .
 RUN dep ensure
-RUN buffalo build --static -o /bin/app --ldflags "-X tweaser.Version=$version -X tweaser.VersionPrerelease=$prerelease -X tweaser.githash=$githash -X tweaser.buildstamp=$buildstamp"
+RUN buffalo build --static -o /bin/app --ldflags "-X github.com/YaleSpinup/tweaser/tweaser.Version=$version -X github.com/YaleSpinup/tweaser/tweaser.VersionPrerelease=$prerelease -X github.com/YaleSpinup/tweaser/tweaser.githash=$githash -X github.com/YaleSpinup/tweaser/tweaser.buildstamp=$buildstamp"
 
 FROM alpine
 RUN apk add --no-cache bash
