@@ -7,3 +7,9 @@ const Version = "No version set"
 // then it means that it is a final release. Otherwise, this is a pre-release
 // such as "dev" (in development), "beta", "rc1", etc.
 const VersionPrerelease = ""
+
+// BuildStamp is the build timestamp
+const BuildStamp = "No BuildStamp Provided"
+
+// GitHash is the git hash ;)
+const GitHash = "No Git Commit Provided"
