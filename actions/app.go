@@ -12,8 +12,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/unrolled/secure"
 
-	"github.com/YaleSpinup/tweaser/tweaser"
 	"github.com/YaleSpinup/tweaser/models"
+	"github.com/YaleSpinup/tweaser/tweaser"
 	"github.com/gobuffalo/x/sessions"
 	"github.com/rs/cors"
 )
@@ -23,7 +23,7 @@ var (
 
 	// ENV is used to help switch settings based on where the
 	// application is being run. Default is "development".
-	ENV = envy.Get("GO_ENV", "development")
+	ENV        = envy.Get("GO_ENV", "development")
 	AdminToken = envy.Get("ADMIN_TOKEN", "")
 	CryptToken = envy.Get("CRYPT_TOKEN", "")
 
@@ -34,12 +34,11 @@ var (
 	VersionPrerelease = tweaser.VersionPrerelease
 
 	// buildstamp is the timestamp the binary was built, it should be set at buildtime with ldflags
-	buildstamp = "No BuildStamp Provided"
+	buildstamp = tweaser.BuildStamp
 
 	// githash is the git sha of the built binary, it should be set at buildtime with ldflags
-	githash = "No Git Commit Provided"
+	githash = tweaser.GitHash
 )
-
 
 // App is where all routes and middleware for buffalo
 // should be defined. This is the nerve center of your
