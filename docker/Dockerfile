@@ -2,12 +2,17 @@
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build/
 FROM gobuffalo/buffalo:v0.13.6 as builder
 
+ARG version=0.0.0
+ARG prerelease
+ARG githash=""
+ARG buildstamp=""
+
 RUN mkdir -p $GOPATH/src/github.com/YaleSpinup/tweaser
 WORKDIR $GOPATH/src/github.com/YaleSpinup/tweaser
 
 ADD . .
 RUN dep ensure
-RUN buffalo build --static -o /bin/app
+RUN buffalo build --static -o /bin/app --ldflags "-X github.com/YaleSpinup/tweaser/tweaser.Version=$version -X github.com/YaleSpinup/tweaser/tweaser.VersionPrerelease=$prerelease -X github.com/YaleSpinup/tweaser/tweaser.githash=$githash -X github.com/YaleSpinup/tweaser/tweaser.buildstamp=$buildstamp"
 
 FROM alpine
 RUN apk add --no-cache bash
