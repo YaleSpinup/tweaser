@@ -1,8 +1,6 @@
 package actions
 
 import (
-	"log"
-
 	"github.com/YaleSpinup/tweaser/helpers"
 	"github.com/YaleSpinup/tweaser/models"
 	"github.com/gobuffalo/buffalo"
@@ -95,26 +93,9 @@ func ResponsesCreate(c buffalo.Context) error {
 		return errors.WithStack(err)
 	}
 
-	for _, a := range response.Answers {
-		ra := &models.ResponseAnswer{
-			ResponseID: response.ID,
-			AnswerID:   a.ID,
-			QuestionID: response.QuestionID,
-		}
-
-		// Validate the posted data and save it to the database
-		ve, err := tx.ValidateAndCreate(ra)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		verrs.Append(ve)
-	}
-
 	if verrs.HasAny() {
 		return c.Render(422, r.JSON(verrs))
 	}
-
-	log.Println("done with update")
 
 	return c.Render(202, r.JSON("submitted"))
 }
