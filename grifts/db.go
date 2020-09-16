@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/YaleSpinup/tweaser/models"
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/pop/v5"
+	"github.com/gofrs/uuid"
 	"github.com/markbates/grift/grift"
 )
 

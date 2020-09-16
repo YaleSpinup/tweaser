@@ -4,9 +4,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"github.com/gofrs/uuid"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/gobuffalo/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 

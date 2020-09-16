@@ -4,7 +4,7 @@ import (
 	"github.com/YaleSpinup/tweaser/helpers"
 	"github.com/YaleSpinup/tweaser/models"
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/pop/v5"
 	"github.com/pkg/errors"
 )
 

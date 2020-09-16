@@ -1,23 +1,21 @@
 # This is a multi-stage Dockerfile and requires >= Docker 17.05
 # https://docs.docker.com/engine/userguide/eng-image/multistage-build/
-FROM gobuffalo/buffalo:v0.13.6 as builder
+FROM gobuffalo/buffalo:v0.16.15 as builder
 
 ARG version=0.0.0
 ARG prerelease
 ARG githash=""
 ARG buildstamp=""
 
-RUN mkdir -p $GOPATH/src/github.com/YaleSpinup/tweaser
-WORKDIR $GOPATH/src/github.com/YaleSpinup/tweaser
-
 ADD . .
-RUN dep ensure
 RUN buffalo build --static -o /bin/app --ldflags "-X github.com/YaleSpinup/tweaser/tweaser.Version=$version -X github.com/YaleSpinup/tweaser/tweaser.VersionPrerelease=$prerelease -X github.com/YaleSpinup/tweaser/tweaser.githash=$githash -X github.com/YaleSpinup/tweaser/tweaser.buildstamp=$buildstamp"
 
 FROM alpine
 RUN apk add --no-cache bash
+RUN apk add --no-cache python3
+RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN apk add --no-cache ca-certificates
-RUN apk add --no-cache wget python gettext && \
+RUN apk add --no-cache wget gettext && \
     wget -nv "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" && \
     unzip awscli-bundle.zip && \
     ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws && \
