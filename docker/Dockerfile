@@ -32,4 +32,6 @@ ENV ADDR=0.0.0.0
 
 EXPOSE 8080
 
+CMD ls -altr 
+CMD ls -altr /bin/
 CMD /bin/import_config.sh && /bin/app migrate; /bin/app

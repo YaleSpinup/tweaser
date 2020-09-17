@@ -1,8 +1,7 @@
 #!/bin/bash
 # Container runtime configuration script
 # Gets encrypted config file from SSM parameter store
-# This script expects SSMPATH env variable with the full SSMPATH path to the enc
-rypted config file
+# This script expects SSMPATH env variable with the full SSMPATH path to the encrypted config file
 
 if [ -n "$SSMPATH" ]; then
   echo "Getting config file from SSM Parameter Store (${SSMPATH}) ..."
@@ -13,7 +12,8 @@ if [ -n "$SSMPATH" ]; then
   fi
   mkdir config
   aws --region us-east-1 ssm get-parameter --name "${SSMPATH}" --with-decryption
- --output text --query "Parameter.Value" | base64 -d > config/config.json
+ --output text --query "Parameter.Value" | base64 -d > .env
+  cp .env /bin/
 else
   echo "ERROR: SSMPATH variable not set!"
   exit 1
