@@ -1,19 +1,18 @@
 #!/bin/bash
 # Container runtime configuration script
-# Gets secrets config file from S3 and uses Deco to substitute parameter values
-# This script expects S3URL env variable with the full S3 path to the encrypted config file
+# Gets encrypted config file from SSM parameter store
+# This script expects SSMPATH env variable with the full SSMPATH path to the encrypted config file
 
-if [ -n "$S3URL" ]; then
-  echo "Getting config file from S3 (${S3URL}) ..."
+if [ -n "$SSMPATH" ]; then
+  echo "Getting config file from SSM Parameter Store (${SSMPATH}) ..."
   aws --version
   if [[ $? -ne 0 ]]; then
-    echo "ERROR: aws-cli not found!"
+    echo "ERROR: awscli not found!"
     exit 1
   fi
-  aws --region us-east-1 s3 cp ${S3URL} ./config.encrypted
-  aws --region us-east-1 kms decrypt --ciphertext-blob fileb://config.encrypted --output text --query Plaintext | base64 -d > .env
-  rm -f config.encrypted
+  mkdir config
+  aws --region us-east-1 ssm get-parameter --name "${SSMPATH}" --with-decryption --output text --query "Parameter.Value" | base64 -d > .env
 else
-  echo "ERROR: S3URL variable not set!"
+  echo "ERROR: SSMPATH variable not set!"
   exit 1
 fi

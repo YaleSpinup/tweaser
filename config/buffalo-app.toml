@@ -1,0 +1,13 @@
+name = "tweaser"
+bin = "bin/tweaser"
+vcs = "git"
+with_pop = true
+with_sqlite = false
+with_dep = true
+with_webpack = false
+with_nodejs = false
+with_yarn = false
+with_docker = false
+with_grifts = true
+as_web = true
+as_api = false
