@@ -12,6 +12,7 @@ if [ -n "$SSMPATH" ]; then
   fi
   mkdir config
   aws --region us-east-1 ssm get-parameter --name "${SSMPATH}" --with-decryption --output text --query "Parameter.Value" | base64 -d > .env
+  /bin/cp .env /bin/
 else
   echo "ERROR: SSMPATH variable not set!"
   exit 1
