@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/YaleSpinup/tweaser/models"
-	"github.com/gobuffalo/pop/v5"
+	"github.com/gobuffalo/grift/grift"
+	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
-	"github.com/markbates/grift/grift"
 )
 
 var _ = grift.Namespace("db", func() {
