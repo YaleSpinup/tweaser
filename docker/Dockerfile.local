@@ -1,17 +1,15 @@
-# This is a multi-stage Dockerfile and requires >= Docker 17.05
-# https://docs.docker.com/engine/userguide/eng-image/multistage-build/
-FROM gobuffalo/buffalo:v0.13.6 as builder
+FROM gobuffalo/buffalo:v0.18.7 as builder
 
-RUN mkdir -p $GOPATH/src/github.com/YaleSpinup/tweaser
-WORKDIR $GOPATH/src/github.com/YaleSpinup/tweaser
-
+RUN mkdir /app
+WORKDIR /app
+COPY go.mod .
+COPY go.sum .
+RUN go mod download && go version
 ADD . .
-RUN dep ensure
 RUN buffalo build --static -o /bin/app
 
 FROM alpine
-RUN apk add --no-cache bash
-RUN apk add --no-cache ca-certificates
+RUN apk add --no-cache bash ca-certificates
 
 WORKDIR /bin/
 
@@ -24,6 +22,9 @@ ENV GO_ENV=local
 ENV ADDR=0.0.0.0
 
 EXPOSE 3000
+
+RUN chown -R nobody:nogroup .
+USER nobody
 
 # CMD /bin/app migrate; /bin/app
 CMD exec /bin/app
