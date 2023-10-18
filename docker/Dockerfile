@@ -1,4 +1,4 @@
-FROM gobuffalo/buffalo:v0.18.7 as builder
+FROM gobuffalo/buffalo:v0.18.14 as builder
 
 ARG version=0.0.0
 ARG prerelease
