@@ -18,7 +18,7 @@ require (
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.8.2
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/unrolled/secure v1.12.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
 )
