@@ -6,7 +6,7 @@ require (
 	github.com/gobuffalo/buffalo v0.18.9
 	github.com/gobuffalo/buffalo-pop/v3 v3.0.6
 	github.com/gobuffalo/envy v1.10.1
-	github.com/gobuffalo/grift v1.5.1
+	github.com/gobuffalo/grift v1.5.2
 	github.com/gobuffalo/mw-contenttype v1.0.1
 	github.com/gobuffalo/mw-forcessl v1.0.1
 	github.com/gobuffalo/mw-paramlogger v1.0.1
