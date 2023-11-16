@@ -47,6 +47,7 @@ WORKDIR /bin/
 
 COPY --from=builder /bin/app .
 COPY docker/*_config.sh /bin
+COPY database.yml /bin
 
 ENV GO_ENV=production
 ENV PORT=8080
